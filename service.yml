@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: doom-travel-service
+spec:
+  selector:
+    k8s-app: backend-pod
+  ports:
+    - protocol: TCP
+      port: 44328
+      targetPort: 44328
+  type: LoadBalancer

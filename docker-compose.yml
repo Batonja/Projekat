@@ -1,0 +1,26 @@
+version: '3.4'
+
+services:
+  backend:
+    image: ${DOCKER_REGISTRY-}backend
+    restart: always
+    build:
+      context: .
+      dockerfile: Backend/Dockerfile
+    
+
+  sqlServerContainer:
+    image: mcr.microsoft.com/mssql/server:2019-GA-ubuntu-16.04
+    restart: always
+    environment:
+      ACCEPT_EULA: "Y"
+      SA_PASSWORD: "Mojjemile@94"
+      
+    ports:
+      - "11433:1433"
+    volumes:
+      - data-volume:/var/lib/backup/data
+    expose:
+      -  1433
+volumes:
+  data-volume:

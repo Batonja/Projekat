@@ -1,0 +1,79 @@
+kind: PersistentVolume
+apiVersion: v1
+metadata:
+  name: pv-data-sql
+  labels:
+    type: local
+spec:
+  storageClassName: hostpath
+  capacity:
+    storage: 10Gi
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: /C/Program Files/Microsoft SQL Server/MSSQL15.MSSQLSERVER/MSSQL/Backup
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: pv-claim-data-sql
+spec:
+  storageClassName: hostpath
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+      
+      
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mssql-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: mssql
+  template:
+    metadata:
+      labels:
+        name: mssql
+    spec:
+      terminationGracePeriodSeconds: 10
+      volumes:
+      - name: mssqldb
+        persistentVolumeClaim:
+          claimName: pv-claim-data-sql
+      containers:
+      - name: mssql
+        image: 'mcr.microsoft.com/mssql/server:2019-GA-ubuntu-16.04'
+        ports:
+        - containerPort: 1433
+        env:
+        - name: ACCEPT_EULA
+          value: "Y"
+        - name: SA_PASSWORD
+          value: "Mojjemile@94"
+            #valueFrom:
+            #  secretKeyRef:
+            #    name: mssql
+            #   key: Mojjemile@94 
+        - name: DoomDatabase
+          value: "Y"
+        volumeMounts:
+        - name: mssqldb
+          mountPath: "/backup"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mssql-deployment
+spec:
+  selector:
+    app: mssql
+  ports:
+    - protocol: TCP
+      port: 1433
+      targetPort: 1433
+  type: LoadBalancer

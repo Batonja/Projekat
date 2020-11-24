@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: doom-travel-deployment
+  labels:
+    app: doom-travel
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: doom-travel
+  template:
+    metadata:
+      labels:
+        app: doom-travel
+    spec:
+      containers:
+      - name: doom-travel
+        image: bdocker971/backend:v24
+        ports:
+        - containerPort: 80       
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: doom-travel-svc
+spec:
+  type: LoadBalancer
+  selector:
+    app: doom-travel
+  ports:
+    - protocol: TCP
+      port: 80
+    
+      
